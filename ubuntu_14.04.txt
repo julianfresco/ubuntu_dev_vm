@@ -51,6 +51,32 @@ sudo sh /media/cdrom/VBoxLinuxAdditions.run --nox11
 	--if this happens, just google the file, find the download for the current version
 	that you are running, download it and replace the version in your root VBox folder.
 
+
+=================================================
+
+Adding SSH keys to your server:
+
+1. Attempt to SSH into your VM from your terminal/shell application:
+	ssh -p2222 user@hostname
+	(say yes to add hostname, enter your password. Once on the server, type logout)
+2. Create SSH keys:
+	From the local computer, type the following command:
+		ssh-keygen -t rsa -C "user@example.com"
+	You don't really need to add a password if you're only using this locally
+	Next, type in the following command:
+		ssh -p2222 user@hostname mkdir -p .ssh
+	The, the following command:
+		cat ~/.ssh/id_rsa.pub | ssh -p2222 user@hostname 'cat >> .ssh/authorized_keys'
+	Now you will be able to login with your SSH key.
+3. Create a shortcut, since "ssh -p2222 user@hostname" is still kind of long...
+	On your local machine, type:
+		nano ~/.ssh/config
+	Type in the following, replacing the bracketed words with your values (delete the brackets):
+		Host [hostname]
+        		Port 2222
+        		User [username]
+        Now you can login with the alias "ssh hostname"
+
 =================================================
 
 Configuring the Apache Web Server:
