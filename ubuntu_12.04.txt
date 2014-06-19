@@ -75,7 +75,7 @@ sudo nano -w /etc/apache2/sites-available/jfresco
 	</VirtualHost>
 
 4. Enable the site:
-sudo a2ensite jfesco
+sudo a2ensite jfresco
 5. Create the Apache configuration file:
 sudo nano -w /etc/apache2/httpd.conf
 
