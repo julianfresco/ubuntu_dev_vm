@@ -25,6 +25,10 @@ Select Auto-mount, and give Full access.
 =================================================
 
 Install Ubuntu Server. Pretty Straight-forward.
+Note 1: On the partition disks step: use "Guided - use entire disk" since you've created a Virtual Hard Disk
+  --confirm that the "disk to partition" is only 8GB (or whatever size you chose) before selecting it
+Note 2: Install at least the following: OpenSSH and LAMP Server
+Note 3: It's fine to install GRUB on your Virtual Hard Disk. This won't prevent your native OS from booting.
 
 When done, the VM will restart. Then you can click
 Devices, and select Add Guest Additions...
