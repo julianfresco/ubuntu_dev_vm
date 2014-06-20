@@ -37,9 +37,9 @@ Devices, and select Add Guest Additions...
 
 Upgrading and Installing the Server Packages:
 
-sudo apt-get install
+sudo apt-get update
 sudo apt-get -y upgrade
-sudo apt-get -q -y install build-essential module-assistant linux-headers-$(uname -r) dkms zip unzip
+sudo apt-get install build-essential linux-headers-virtual dkms nano zip unzip wget curl man-db acpid -y
 
 =================================================
 
