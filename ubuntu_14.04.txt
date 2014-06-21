@@ -30,8 +30,7 @@ Note 1: On the partition disks step: use "Guided - use entire disk" since you've
 Note 2: Install at least the following: OpenSSH and LAMP Server
 Note 3: It's fine to install GRUB on your Virtual Hard Disk. This won't prevent your native OS from booting.
 
-When done, the VM will restart. Then you can click
-Devices, and select Add Guest Additions...
+When done, the VM will restart. 
 
 =================================================
 
@@ -45,12 +44,26 @@ sudo apt-get install build-essential linux-headers-virtual dkms nano zip unzip w
 
 Installing VirtualBox Guest Additions:
 
-sudo mount /dev/cdrom /media/cdrom
-sudo sh /media/cdrom/VBoxLinuxAdditions.run --nox11
-	Note: here, sometimes you'll have problems with the file VBoxGuestAdditions.iso
-	--if this happens, just google the file, find the download for the current version
-	that you are running, download it and replace the version in your root VBox folder.
+From the Virtual Box menu, select Devices, and select Insert Guest Additions CD image...
 
+Type the following commands:
+	sudo mount /dev/cdrom /media/cdrom
+	     It should return: "mount: block device /dev/sr0 is write-protected, mounting read-only"
+
+	sudo sh /media/cdrom/VBoxLinuxAdditions.run
+		Note: if you have problems with the file VBoxGuestAdditions.iso, google the file and version, 
+		find the download for the current version of VirtualBox that you are running, download it 
+		and replace the version in your root VBox folder.
+		Note: Ignore the error message about not finding the Window System.
+	
+	sudo reboot
+		After the reboot, you can SSH back into the VM
+
+Next you will confirm VBoxGuestAdditions is auto-loading:
+	SSH back into your VM. Type:
+	
+	lsmod
+		You should see 2 modules in the list: vboxsf, and vboxguest
 
 =================================================
 
