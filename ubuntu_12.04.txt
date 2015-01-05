@@ -1,0 +1,179 @@
+Installing and Configuring your server:
+
+=================================================
+VirtualBox Settings:
+1. General:
+Type: Linux
+Version: Ubuntu (64 bit)
+
+2. System:
+Memory: at least 1024 MB
+
+3. Storage:
+Add the Ubuntu 64 ISO file or add drive
+
+4. Network, under Advanced > Port Forwarding:
+Name	Host Port	Guest Port
+HTTP	8080		80
+MySQL	9306		3306
+SSH	2222		22
+
+5. Shared Folder:
+Add the folder you want to use in the system.
+Select Auto-mount, and give Full access.
+
+=================================================
+
+Install Ubuntu Server. Pretty Straight-forward.
+Note 1: On the partition disks step: use "Guided - use entire disk" since you've created a Virtual Hard Disk
+  --confirm that the "disk to partition" is only 8GB (or whatever size you chose) before selecting it
+Note 2: Install at least the following: OpenSSH and LAMP Server
+Note 3: It's fine to install GRUB on your Virtual Hard Disk. This won't prevent your native OS from booting.
+
+When done, the VM will restart. Then you can click
+Devices, and select Add Guest Additions...
+
+=================================================
+
+Upgrading and Installing the Server Packages:
+
+sudo apt-get install
+sudo apt-get -y upgrade
+sudo apt-get -q -y install build-essential module-assistant linux-headers-$(uname -r) dkms zip unzip
+
+=================================================
+
+Installing VirtualBox Guest Additions:
+
+sudo mount /dev/cdrom /media/cdrom
+sudo sh /media/cdrom/VBoxLinuxAdditions.run --nox11
+	Note: here, sometimes you'll have problems with the file VBoxGuestAdditions.iso
+	--if this happens, just google the file, find the download for the current version
+	that you are running, download it and replace the version in your root VBox folder.
+
+=================================================
+
+Configuring the Apache Web Server:
+1. Add your user & apache's user to VirtualBox Group:
+sudo usermod -a -G vboxsf jfresco
+sudo usermod -a -G vboxsf www-data
+2. Turn on the URL Rewrite Module in Apache:
+sudo a2enmod rewrite
+3. Make a new site configuration for your site:
+sudo nano -w /etc/apache2/sites-available/jfresco
+
+	Next, enter in the following in nano:
+	
+	<VirtualHost *:80>
+	   ServerName jfresco
+	   ServerAlias jfresco
+	   DocumentRoot /media/sf_sandbox/
+	
+	   LogLevel info
+	   ErrorLog ${APACHE_LOG_DIR}/jfresco-error.log
+	   CustomLog ${APACHE_LOG_DIR}/jfresco-access.log combined
+	
+	   RewriteEngine On
+	   RewriteLog ${APACHE_LOG_DIR}/jfresco-rewrite.log
+	   RewriteLogLevel 0
+	</VirtualHost>
+
+4. Enable the site:
+sudo a2ensite jfresco
+5. Create the Apache configuration file:
+sudo nano -w /etc/apache2/httpd.conf
+
+	Next, enter the following in nano:
+	ServerName development
+
+6. Turn on development-type logging in PHP:
+sudo nano -w /etc/php5/apache2/php.ini
+	Search for (Ctrl+W) `error_reporting =`:
+	Change the value to the development one.
+	
+	error_reporting =  E_ALL | E_STRICT
+
+	Next, search for `display_errors =` and turn On.
+	Next, search for `log_errors =` and verify it is On.
+	Next, change `log_errors_max_len` to 0 (allows unlimited length of a log message)
+	Next, search for `error_log =` and add a new rule:
+
+	error_log = /media/sf_sandbox/php_errors.log
+	
+	Save and exit.
+
+=================================================
+
+Configure the MySQL server:
+1. Allow any IP to access the database (!WARNING: for DEV site/server only)
+sudo nano -w /etc/mysql/my.cnf
+	Search for `bind-address` and change the value of the IP to 0.0.0.0
+	Save and exit.
+
+=================================================
+
+Configure the mail server:
+1. Install Exim (a lightweight mail server NTA) using gmail (requires an email service supporting SMTP)
+sudo apt-get -y install exim4
+
+2. Configure email MTA
+sudo dpkg-reconfigure exim4-config
+	A ubuntu config window pops up, select `mail sent by smarthost; received via SMTP or fetchmail`
+	Leave the default server name.
+	Leave the incoming SMTP connections as-is.
+	Leave other destinations for which mail is accepted as-is.
+	Leave machines to relay mail for as-is.
+	For the IP address/host name of the outgoing smarthost, change this to smtp.gmail.com::587
+	Select NO twice for Hise local mail name, and keep number of DNS-queries minimal.
+	Leave Delivery method for local mail as-is.
+	Select No for splitting the configuration into small files.
+
+3. Add your email username and password to Exim
+sudo nano -w /etc/exim4/passwd.client
+	At the bottom of the file, add the following (replacing the USERNAME and PASSWORD):
+	*:USERNAME@gmail.com:PASSWORD
+	Save and exit.
+
+=================================================
+
+Reboot the VM:
+sudo reboot
+
+=================================================
+
+Test that the server is working using PHPMyAdmin
+1. Install phpmyadmin:
+sudo apt-get -y install phpmyadmin
+	Select apache2 as web server to reconfigure automatically.
+	Select Yes to configure database with dbconfig-common
+	Enter the MySQL root password.
+	On the next password question, leave it blank (it generates a random one)
+2. Configure PHPMyAdmin to automatically login (!WARNING: for DEV servers only):
+sudo nano -w /etc/phpmyadmin/config.inc.php
+	Search for `Authentication type`, change the line with:
+	$cfg['Servers'][$i]['auth_type'] = 'cookie';
+	from 'cookie' to 'config'
+	Next, add the following lines with the username/password for your database.
+	$cfg['Servers'][$i]['user'] = 'root';
+	$cfg['Servers'][$i]['password'] = 'pass';
+	Save and Exit.
+3. Open PHPMyAdmin to see if it's working:
+http://jfresco:8080/phpmyadmin/
+http://localhost:8080/phpmyadmin/
+
+
+=================================================
+
+Properly shutting down:
+sudo shutdown -h now
+
+To reboot, sudo reboot
+
+Save the VM status so you can return to it later:
+In the VirtualBox menu, click close, select Save the machine state.
+
+To install new packages:
+sudo apt-get update
+sudo apt-get upgrade
+
+=================================================
